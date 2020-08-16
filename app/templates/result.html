@@ -1,0 +1,144 @@
+<html>
+
+<head>
+	<title>THAI MUSIC Classification</title>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<style>
+	header {
+		background-color: #3A8386;
+		padding: 30px;
+		text-align: center;
+		font-size: 35px;
+		color: #3A8386;
+	}
+
+	fonthead {
+		font-family: "THSarabunNew";
+		color: white;
+	}
+
+	font {
+		font-family: "THSarabunNew";
+		color: #045243;
+	}
+
+	section {
+		display: -webkit-flex;
+		display: flex;
+	}
+
+	footer {
+		background-color: #777;
+		padding: 10px;
+		text-align: center;
+		color: white;
+		font-family: "THSarabunNew";
+	}
+
+	div.tt {
+		display: inline-block;
+	}
+
+	div.test {
+		background-color: #EBEBEB;
+		grid-template-columns: auto auto;
+		border: 0px solid LightSlateGrey;
+		height: 250px;
+		padding: 80px;
+		margin-bottom: 50px;
+		color: LightSlateGrey;
+		font-weight: bold;
+	}
+
+	div.box-lyrics {
+		width: 400px;
+		display: inline-block;
+		margin-right: 50px;
+		font-family: "THSarabunNew";
+	}
+
+	div.box-sound {
+		width: 400px;
+		display: inline-block;
+		margin-right: 50px;
+		font-family: "THSarabunNew";
+	}
+
+	div.last {
+		margin-right: 0;
+	}
+
+	.sound-upload>input {
+		display: none;
+	}
+
+	.sound-upload img {
+		width: 105px;
+		cursor: pointer;
+	}
+
+	input[type=text],
+	select {
+		width: 100%;
+		padding: 12px 20px;
+		margin: 8px 0;
+		display: inline-block;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		box-sizing: border-box;
+	}
+
+	input[type=submit] {
+		width: 100%;
+		background-color: #4CAF50;
+		color: white;
+		padding: 14px 20px;
+		margin: 8px 0;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+	}
+</style>
+
+<body style="background-color:white;">
+	<header>
+		<h1><b>
+				<fonthead>ตัวจำแนกเพลงไทย</fonthead>
+			</b></h1>
+	</header><br>
+
+	<div class="results"></div>
+	<center>
+		<h2>
+			<font>จำแนกคุณลักษณะอารมณ์และแนวดนตรีของเพลง</font>
+		</h2>
+		<div class="container">
+			<div class="test box-sound">
+				<form>
+					<h1>ชื่อเพลง : {{ name }}</h1><br>
+					<h1>แนวดนตรี : {{ prediction }}</h1>
+					<br><br><br>
+					<form enctype="multipart/form-data">
+						<input type="button" value="Go back!" onclick="history.back()">
+					</form>
+			</div>
+		</div>
+		</div>
+	</center>
+	<footer>
+		<p>THAI MUSIC CLASSIFICATION</p>
+	</footer>
+
+	<script>
+		$.getJSON('http://localhost:3000/api', function (data) {
+
+			var text = `Date: ${data.prediction}<br>`
+
+
+			$(".result").html(text);
+		});
+	</script>
+</body>
+
+</html>

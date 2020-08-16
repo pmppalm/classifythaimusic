@@ -1,0 +1,751 @@
+<html>
+
+<head>
+    <title>THAI MUSIC Classification</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/login.css}" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
+</head>
+<style>
+    header {
+        background-color: #3A8386;
+        width: 100%;
+        height: 200px;
+        padding: 80px;
+        text-align: center;
+        font-size: 100px;
+        color: #3A8386;
+    }
+
+    fonthead {
+        font-family: "THSarabunNew";
+        color: white;
+        font-size: 50px;
+    }
+
+    font {
+        font-family: "THSarabunNew";
+        color: #045243;
+    }
+
+    footer {
+        padding: 15px;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #777;
+        color: white;
+        text-align: center;
+        font-family: "THSarabunNew";
+    }
+
+    input[type=text],
+    select {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    input[type=submit] {
+        width: 100%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    #borderDemo {
+        border: px solid #000000;
+        background-color: #EBEBEB;
+        width: 500px;
+        height: 400px;
+        padding: 50px;
+        display: inline-block;
+        font-family: "THSarabunNew";
+
+    }
+
+    .autocomplete {
+        position: relative;
+        display: inline-block;
+        text-align: left;
+    }
+
+    .autocomplete-items {
+        position: absolute;
+        border: 1px solid #d4d4d4;
+        border-bottom: none;
+        border-top: none;
+        z-index: 99;
+        /*position the autocomplete items to be the same width as the container:*/
+        top: 100%;
+        left: 0;
+        right: 0;
+    }
+
+    .autocomplete-items div {
+        padding: 10px;
+        cursor: pointer;
+        background-color: #fff;
+        /* border-bottom: 1px solid #d4d4d4; */
+    }
+
+    /*when hovering an item:*/
+    .autocomplete-items div:hover {
+        background-color: #e9e9e9;
+    }
+
+    /*when navigating through the items using the arrow keys:*/
+    .autocomplete-active {
+        background-color: DodgerBlue !important;
+        color: #ffffff;
+    }
+</style>
+
+<body style="background-color:white;">
+    <header>
+        <h1><b>
+                <fonthead>ตัวจำแนกเพลงไทย</fonthead>
+            </b></h1>
+    </header><br>
+    <center>
+        <h2>
+            <font><b>จำแนกคุณลักษณะอารมณ์และแนวดนตรีของเพลง</b></font>
+        </h2>
+        <br>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div id="borderDemo">
+                        <h1><b>L y r i c s & G e n r e</b></h1>
+                        <!-- <form action="/poem" method="POST" enctype="multipart/form-data">
+                            <h2>ค้นหาชื่อเพลงที่ต้องการวิเคราะห์</h2>
+                            <input type="text" id="sound" placeholder="กรุณาใส่ชื่อเพลงที่ต้องการ" class="form-control"
+                                name="message" required autofocus>
+                            <h3>(รองรับภาษาไทย)</h3>
+                            <input type="submit" value="Predict" />
+                        </form> -->
+                        <form action="/success" method="POST" enctype="multipart/form-data">
+                            <br>
+                            <h3>ค้นหาชื่อเพลงที่ต้องการวิเคราะห์</h3>
+                            <div class="autocomplete" style="width:100%;">
+                                <input type="text" id="sound" placeholder="กรุณาใส่ชื่อเพลงที่ต้องการ"
+                                    class="form-control" name="message" autocomplete="off" required autofocus>
+                            </div>
+                            <br><br>
+                            <input type="submit" value="วิเคราะห์" />
+                        </form>
+
+                        <script>
+                            function autocomplete(inp, arr) {
+                                /*the autocomplete function takes two arguments,
+                                the text field element and an array of possible autocompleted values:*/
+                                var currentFocus;
+                                /*execute a function when someone writes in the text field:*/
+                                inp.addEventListener("input", function (e) {
+                                    var a, b, i, val = this.value;
+                                    /*close any already open lists of autocompleted values*/
+                                    closeAllLists();
+                                    if (!val) { return false; }
+                                    currentFocus = -1;
+                                    /*create a DIV element that will contain the items (values):*/
+                                    a = document.createElement("DIV");
+                                    a.setAttribute("id", this.id + "autocomplete-list");
+                                    a.setAttribute("class", "autocomplete-items");
+                                    /*append the DIV element as a child of the autocomplete container:*/
+                                    this.parentNode.appendChild(a);
+                                    /*for each item in the array...*/
+                                    for (i = 0; i < arr.length; i++) {
+                                        /*check if the item starts with the same letters as the text field value:*/
+                                        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                                            /*create a DIV element for each matching element:*/
+                                            b = document.createElement("DIV");
+                                            /*make the matching letters bold:*/
+                                            b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                                            b.innerHTML += arr[i].substr(val.length);
+                                            /*insert a input field that will hold the current array item's value:*/
+                                            b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                                            /*execute a function when someone clicks on the item value (DIV element):*/
+                                            b.addEventListener("click", function (e) {
+                                                /*insert the value for the autocomplete text field:*/
+                                                inp.value = this.getElementsByTagName("input")[0].value;
+                                                /*close the list of autocompleted values,
+                                                (or any other open lists of autocompleted values:*/
+                                                closeAllLists();
+                                            });
+                                            a.appendChild(b);
+                                        }
+                                    }
+                                });
+                                /*execute a function presses a key on the keyboard:*/
+                                inp.addEventListener("keydown", function (e) {
+                                    var x = document.getElementById(this.id + "autocomplete-list");
+                                    if (x) x = x.getElementsByTagName("div");
+                                    if (e.keyCode == 40) {
+                                        /*If the arrow DOWN key is pressed,
+                                        increase the currentFocus variable:*/
+                                        currentFocus++;
+                                        /*and and make the current item more visible:*/
+                                        addActive(x);
+                                    } else if (e.keyCode == 38) { //up
+                                        /*If the arrow UP key is pressed,
+                                        decrease the currentFocus variable:*/
+                                        currentFocus--;
+                                        /*and and make the current item more visible:*/
+                                        addActive(x);
+                                    } else if (e.keyCode == 13) {
+                                        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+                                        e.preventDefault();
+                                        if (currentFocus > -1) {
+                                            /*and simulate a click on the "active" item:*/
+                                            if (x) x[currentFocus].click();
+                                        }
+                                    }
+                                });
+                                function addActive(x) {
+                                    /*a function to classify an item as "active":*/
+                                    if (!x) return false;
+                                    /*start by removing the "active" class on all items:*/
+                                    removeActive(x);
+                                    if (currentFocus >= x.length) currentFocus = 0;
+                                    if (currentFocus < 0) currentFocus = (x.length - 1);
+                                    /*add class "autocomplete-active":*/
+                                    x[currentFocus].classList.add("autocomplete-active");
+                                }
+                                function removeActive(x) {
+                                    /*a function to remove the "active" class from all autocomplete items:*/
+                                    for (var i = 0; i < x.length; i++) {
+                                        x[i].classList.remove("autocomplete-active");
+                                    }
+                                }
+                                function closeAllLists(elmnt) {
+                                    /*close all autocomplete lists in the document,
+                                    except the one passed as an argument:*/
+                                    var x = document.getElementsByClassName("autocomplete-items");
+                                    for (var i = 0; i < x.length; i++) {
+                                        if (elmnt != x[i] && elmnt != inp) {
+                                            x[i].parentNode.removeChild(x[i]);
+                                        }
+                                    }
+                                }
+                                /*execute a function when someone clicks in the document:*/
+                                document.addEventListener("click", function (e) {
+                                    closeAllLists(e.target);
+                                });
+                            }
+
+                            /*An array containing all the country names in the world:*/
+                            var countries = ["1 วินาทีก็ช้าไป",
+                                "3 คำ",
+                                "AB แอ๊บ",
+                                "Alone",
+                                "Alright",
+                                "Amezing",
+                                "Anenue",
+                                "Angry Boo",
+                                "Baby come back to me",
+                                "Baby, it’s you",
+                                "Butterfly",
+                                "Can’t stop loving you",
+                                "Dancing",
+                                "Event",
+                                "Falling in Love Again Tonight",
+                                "First Kiss",
+                                "Forward",
+                                "Golden Flower",
+                                "Homesick",
+                                "I Love Your Smile",
+                                "I'm Not Superstar",
+                                "I'm Sorry สีดา",
+                                "Instagram",
+                                "Jeep",
+                                "Keep It 100",
+                                "Lady",
+                                "Love Is Now รักอยู่ตรงหน้า",
+                                "Love sick",
+                                "Me Too",
+                                "MSN",
+                                "No money No Honey",
+                                "Only You",
+                                "Paradise",
+                                "Perhaps Love",
+                                "R.I.P (Love)",
+                                "Radio",
+                                "Restart",
+                                "Sky & Sea",
+                                "Smile... Pass It On!",
+                                "Star",
+                                "Summer",
+                                "Swinging",
+                                "Take care",
+                                "Unfriend",
+                                "Unloveable",
+                                "Unmistaken love",
+                                "Until We Meet Again",
+                                "Walk You Home",
+                                "What is your name",
+                                "Your Garden",
+                                "เก็บ",
+                                "เก็บไว้",
+                                "เกลียด",
+                                "เกิดมาเพื่อรักเธอ",
+                                "เกิดมาแค่รักกัน",
+                                "เกินคำว่าเสียใจ",
+                                "เกินจะบอก",
+                                "เกี่ยวกันไหม",
+                                "เกี่ยวกับเธอ",
+                                "เข้าใจแต่ทำไม่ได้",
+                                "เข้าใจฉันไหม",
+                                "เขาที่เพิ่งเจอกับเธอที่มาก่อน",
+                                "เคลิ้ม",
+                                "เงาของฝน",
+                                "เงารัก",
+                                "เจ็บ",
+                                "เจ็บเท่ากัน",
+                                "เจ็บแค่ไหนก็ยังรักอยู่",
+                                "เจ็บแต่จบ",
+                                "เจ็บแล้วไม่จำ",
+                                "เจ็บและชินไปเอง",
+                                "เจ็บไปเจ็บมา",
+                                "เจ็บไปรักไป",
+                                "เจ็บไม่จำ",
+                                "เจ็บของฉัน เหงาของเธอ",
+                                "เจ็บที่ไร้ร่องรอย",
+                                "เจ็บที่ต้องรู้",
+                                "เจ็บทุกทาง",
+                                "เจ็บทุกลมหายใจ",
+                                "เจอก็รัก จากก็ลืม",
+                                "เช้าวันจันทร์",
+                                "เชื่อว่ารักแท้มีจริง",
+                                "เซียนตัดเซียน",
+                                "เต็มใจ",
+                                "เท่าที่มี",
+                                "เที่ยงคืนสิบห้านาที",
+                                "เธอเก่งเรื่องลืม ฉันเก่งเรื่องจำ",
+                                "เธอเป็นเธอ",
+                                "เธอไม่ยอมปล่อยหรือฉันไม่ยอมไป",
+                                "เธอคนเดิม",
+                                "เธอคิดยังไงกัน",
+                                "เธอคือ",
+                                "เธอคือใคร",
+                                "เธอคือของขวัญ",
+                                "เธอจะรักฉันได้ไหม",
+                                "เธอทั้งนั้น",
+                                "เธอทำให้ฉันเสียใจ",
+                                "เธอมาหาเวลาเหงา",
+                                "เธอมีฉัน ฉันมีใคร",
+                                "เธอยัง",
+                                "เธอหมุนรอบฉัน ฉันหมุนรอบเธอ",
+                                "เป็นทุกอย่าง",
+                                "เปราะบาง",
+                                "เปลี่ยน",
+                                "เปลี่ยนแฟนหลายหน",
+                                "เปลี่ยนไปแล้ว",
+                                "เปลือก",
+                                "เผลอ",
+                                "เผลอใจ",
+                                "เพดาน",
+                                "เพราะใจ",
+                                "เพราะหัวใจไม่มีปาก",
+                                "เพลงเพราะ เพราะเธอ",
+                                "เพลงของเธอ",
+                                "เพลงของเธอและฉัน",
+                                "เพลงของเรา",
+                                "เพลงที่ฉันไม่ได้แต่ง",
+                                "เพิ่งรู้ตัว",
+                                "เพิ่งรู้ว่าเจ็บ",
+                                "เพียงในใจ",
+                                "เพียงสิ่งเดียว",
+                                "เพื่อนใหม่ที่ไม่สนิท",
+                                "เพื่อนกันทุกที",
+                                "เพื่อนกันวันสุดท้าย",
+                                "เพื่อนที่เธอไม่รู้ใจ",
+                                "เพื่อนผู้ชาย",
+                                "เพื่อนรัก",
+                                "เพื่อนสนิท",
+                                "เมื่อได้พบ",
+                                "เมื่อวาน",
+                                "เยอะ",
+                                "เราเลือกความรักได้เสมอ",
+                                "เรากลับมาเป็นเหมือนเดิมได้ไหม",
+                                "เริ่มใหม่กับคนเก่า",
+                                "เริ่มต้นอีกครั้งกับคำว่าลืม",
+                                "เรือเล็กควรออกจากฝั่ง",
+                                "เรื่องเก่า เศร้าใหม่",
+                                "เรื่องของเรา",
+                                "เรื่องจริงเรื่องสุดท้าย",
+                                "เรื่องจริงยิ่งกว่านิยาย",
+                                "เรื่องมหัศจรรย์",
+                                "เรื่องรักธรรมดา",
+                                "เล่นของสูง",
+                                "เลิกดีๆ",
+                                "เวลา",
+                                "เวลาเรามีเท่ากัน (Hourglass)",
+                                "เวลาของเรา",
+                                "เสียใจแต่เธอไม่รู้",
+                                "เสียใจแต่ไม่แคร์",
+                                "เสี่ยงเหลือเกิน",
+                                "เสียงของหัวใจ",
+                                "เสียงที่เปลี่ยน",
+                                "เสี่ยงมั้ย",
+                                "เสียงอำลา",
+                                "เสียรักไม่ได้",
+                                "เหงา เหงา (Insomnia)",
+                                "เหงาเหมือนกันหรือเปล่า",
+                                "เหตุเกิดจากความเหงา",
+                                "เหตุการณ์ความไม่สงบ (ของเรา)",
+                                "เหตุผลข้อเดียว",
+                                "เหนื่อยเกินไปหรือเปล่า",
+                                "เหนื่อยไหมหัวใจ",
+                                "เหล่",
+                                "เหลือเวลาอีกเท่าไหร่",
+                                "แก้เหงาหรือว่าเอาจริง",
+                                "แค่เท่านั้น",
+                                "แค่เธอก็พอ",
+                                "แค่เธอรักฉัน",
+                                "แค่เพียงได้รู้",
+                                "แค่ได้เป็นคนสุดท้ายที่เธอคิดถึง",
+                                "แค่ของปลอม",
+                                "แค่คนที่แอบรัก",
+                                "แค่ล้อเล่น",
+                                "แตกต่างเหมือนกัน",
+                                "แทนคำนั้น",
+                                "แผลที่ไม่มีวันหาย",
+                                "แพ้แล้วพาล",
+                                "แพ้คนขี้เหงา",
+                                "แพ้คำว่ารัก",
+                                "แฟ",
+                                "แฟนเขา แฟนเรา",
+                                "แฟนน่ารัก",
+                                "แม้ไม่มีเธออยู่ตรงนี้",
+                                "แรกสัมผัสรัก",
+                                "แล้วเธอจะรู้สึก",
+                                "แล้วเราจะได้รักกันไหม",
+                                "แล้วแต่ใจเธอ",
+                                "แสงไฟ",
+                                "แสงของหัวใจ",
+                                "แหลก",
+                                "แอบเหงา",
+                                "แอบดี",
+                                "โกหก",
+                                "โซซัดโซเซ",
+                                "โปรดเถิดรัก",
+                                "โอน้อยออก (O-Noi-Oog)",
+                                "ใกล้",
+                                "ใจเธอรู้ดี",
+                                "ใจนักเลง",
+                                "ใจหาย",
+                                "ใช่กว่า",
+                                "ใต้ผ้าห่ม",
+                                "ไกลแค่ไหน คือ ใกล้",
+                                "ไปรักกันให้พอ ฉันรอไหว",
+                                "ไม่เจ็บอย่างฉันใครจะเข้าใจ",
+                                "ไม่เป็นไร",
+                                "ไม่เห็นฝุ่น",
+                                "ไม่ใช่ใครก็ได้",
+                                "ไม่ใช่ความฝัน",
+                                "ไม่ใช่ความลับ แต่ยังบอกไม่ได้",
+                                "ไม่ได้ยิน",
+                                "ไม่ได้หมดรัก แต่หมดแรง",
+                                "ไม่ไหวบอกไหว",
+                                "ไม่กล้าบอกเธอ",
+                                "ไม่ขอก็จะให้",
+                                "ไม่คิดถึงเลย",
+                                "ไม่คิดอะไร",
+                                "ไม่ชอบอยู่คนเดียว",
+                                "ไม่ต้องขอโทษ",
+                                "ไม่ต้องรู้ว่าเราคบกันแบบไหน",
+                                "ไม่ต่างกัน",
+                                "ไม่ธรรมดา",
+                                "ไม่บอกเธอ",
+                                "ไม่พูดก็เข้าใจ",
+                                "ไม่พูดก็ได้ยิน",
+                                "ไม่มีเหตุผล",
+                                "ไม่มีใคร ยังไงก็มีเธอ",
+                                "ไม่มีตรงกลาง",
+                                "ไม่ยอมตัดใจ",
+                                "ไม่หมดรัก แต่หมดแรง",
+                                "ไม่อยากเป็นของใคร",
+                                "ไม่อยากให้โลกนี้มีความคิดถึง",
+                                "ไม่อยากคุ้นเคย",
+                                "ไม่อยากจะรับรู้",
+                                "กฎแห่งกรรม",
+                                "กรรมตามสนอง",
+                                "กระเป๋าแบรนด์แฟนยิ้ม",
+                                "กลัว",
+                                "กอดไม่ได้",
+                                "กอดหน่อยได้ไหม",
+                                "ก่อนวันสุดท้ายจะมาถึง",
+                                "กาลครั้งหนึ่ง",
+                                "กี่พรุ่งนี้",
+                                "ขอโทษ",
+                                "ขอให้มันจริง",
+                                "ของขวัญที่ไม่เคยคิดฝัน",
+                                "ของหายอยากได้คืน",
+                                "ขอตายในอ้อมกอดเธอ",
+                                "ขอรักได้ไหม",
+                                "คงไม่ทัน",
+                                "คนเดียวเท่านั้น",
+                                "คนของเธอ",
+                                "คนที่แสนดี",
+                                "คนที่ไม่บอกผ่าน",
+                                "คนปัจจุบัน",
+                                "คนลืมช้า",
+                                "คนสุดท้าย",
+                                "คบไม่ได้",
+                                "ครั้งนี้",
+                                "ครั้งสุดท้าย",
+                                "ครึ่งใจ",
+                                "ความเจ็บปวด",
+                                "ความเจ็บยังคงหายใจ",
+                                "ความเฉยชาคือการบอกลาโดยไม่ต้องออกเสียง",
+                                "ความเชื่อส่วนบุคคล",
+                                "ความเหงาโทรเข้ามา",
+                                "ความโสดทำให้รถติด",
+                                "ความในใจ",
+                                "ความคิด",
+                                "ความจริง",
+                                "ความจริงที่เจ็บปวด",
+                                "ความทรงจำของคนชั่วคราว",
+                                "ความทรงจำสีจาง",
+                                "ความพยายาม",
+                                "ความรักไม่ผิด",
+                                "ความรักกับความลับ",
+                                "ความรักดีๆอยู่ที่ไหน",
+                                "ความรู้สึกของวันนี้",
+                                "ความลับ",
+                                "ความลับในใจ",
+                                "ความหวาน",
+                                "คาใจ",
+                                "คำเดิม",
+                                "คำง่ายๆ I miss u",
+                                "คำตอบที่ไม่เคยถาม",
+                                "คำตอบที่ไม่เคยรู้",
+                                "คำตอบอยู่ที่หัวใจ",
+                                "คำอวยพร",
+                                "คิดไปเอง",
+                                "คิดถึง",
+                                "คุณเก็บความลับได้ไหม",
+                                "คู่ชีวิต",
+                                "จะให้ฉันรักยังไง",
+                                "จะอยู่ตรงนี้จนวันสุดท้าย",
+                                "จันทร์เจ้า",
+                                "จากนี้ไปจนนิรันดร์",
+                                "จำอะไรไม่ได้",
+                                "จุดเริ่มต้นของจุดจบ",
+                                "ฉันกำลังจะตาย",
+                                "ฉันขอลา",
+                                "ฉันจะเคียงข้างเธอ",
+                                "ฉันต้องการเวลาจากเธอ",
+                                "ชิน",
+                                "ชีวิตนี้สั้นจะตาย",
+                                "ซาโยนาระ",
+                                "ซิงเกิล สุดท้าย",
+                                "ดงนางฟ้า",
+                                "ด้วยแรงใจ",
+                                "ด้วยมือคู่นี้",
+                                "ดินแดนแห่งรัก",
+                                "ดีดี",
+                                "ดีพอให้รอไหม",
+                                "ดูแลไม่ไหว",
+                                "ต่อให้นับดาวจนหมดฟ้า",
+                                "ต้องรอหรือต้องลืม",
+                                "ตอบได้ไหมว่า ได้ไหม",
+                                "ตอบยังไง",
+                                "ตั้งใจ",
+                                "ตัดใจไม่ลงและคงไม่ยอม",
+                                "ตัดพ้อ",
+                                "ตัวประกอบ",
+                                "ต่างคนต่างเหนื่อย",
+                                "ถนนบนต้นไม้ใหญ่",
+                                "ถอย",
+                                "ถ้าเธอไป",
+                                "ถ้าเธอไม่เจอเขา (Change)",
+                                "ถ้าเลิกกับเขาเรารักกันไหม",
+                                "ถามเอาอะไร",
+                                "ถ้ายังรัก",
+                                "ถึงเวลาฟัง",
+                                "ถือว่าเราไม่เคยพบกัน",
+                                "ทนไม่ไหว",
+                                "ทนไม่พอ รอไม่ไหว",
+                                "ทนพิษบาดแผลไม่ไหว",
+                                "ทศกัณฐ์มานะ",
+                                "ทำใจไม่ได้ (I Can't)",
+                                "ทำไมต้องทำให้มีน้ำตา",
+                                "ทำอะไรสักอย่าง",
+                                "ที่จริงเราไม่ได้รักกัน",
+                                "ที่ฉันเคยยืน",
+                                "ที่สุดในโลก",
+                                "ทุ้มอยู่ในใจ",
+                                "นักเลงคีย์บอร์ด",
+                                "นักประดาน้ำ",
+                                "นับดาว",
+                                "นับหนึ่งกันไหม",
+                                "นางฟ้า",
+                                "นางสาวไทย",
+                                "นาที",
+                                "นาทีที่ไม่มีฉัน",
+                                "น่ารักน่าชัง",
+                                "นาฬิกาเรือนเก่า",
+                                "นาฬิกาของคนรักกัน",
+                                "นาฬิกาตาย",
+                                "น้ำตาจะไหล",
+                                "น้ำตาสุดท้าย (One last tear)",
+                                "นิดนึง",
+                                "นี่แหละคือความเสียใจ",
+                                "นี่คือตอนจบของคนไม่พูดกัน",
+                                "นี่คือรักแท้ใช่มั้ย",
+                                "บทเรียนจากน้ำตา",
+                                "บนดาวที่แสนไกล",
+                                "บอกสักคำ",
+                                "บ่ายสอง",
+                                "ปฏิเสธอย่างไร",
+                                "ประตู อากาศ และวันดีดี",
+                                "ปล่อย (Miss)",
+                                "ปล่อย",
+                                "ปลายสายรุ้ง",
+                                "ปลิว",
+                                "ปัจจุบัน",
+                                "ปากไม่ดี รักจริง",
+                                "ผิดที่ไว้ใจ",
+                                "ฝน",
+                                "ฝนตกที่หน้าต่าง",
+                                "ฝัง",
+                                "ฝันหรือเปล่า",
+                                "ฝาก",
+                                "ฝากไว้",
+                                "ฝากฟ้าทะเลฝัน",
+                                "ฝืน",
+                                "ฝืนตัวเองไม่เป็น",
+                                "พบกันใหม่",
+                                "พยายาม",
+                                "พรหมลิขิต",
+                                "พรุ่งนี้ค่อย",
+                                "พลังที่ซ่อนไว้",
+                                "พลิกล็อคที่หัวใจ",
+                                "พอได้แล้ว",
+                                "พักผ่อนไม่เพียงพอ",
+                                "พูดไม่ได้สักที",
+                                "พูดไม่ค่อยถูก",
+                                "พูดลอยๆ",
+                                "พูดอะไรไม่ได้สักอย่าง",
+                                "ฟ้า",
+                                "ฟิน",
+                                "ภาพทรงจำ",
+                                "ยังไกล",
+                                "ยังไงก็ไม่ยัก",
+                                "ยังคิดถึง (Same)",
+                                "ยังทำไม่ได้",
+                                "ยิ่งใกล้ยิ่งใช่",
+                                "ยิ่งไม่รู้ ยิ่งต้องทำ",
+                                "ยิ่งกว่าคำนิยาม",
+                                "รอคำว่ารัก",
+                                "ร้องไห้ง่ายง่ายกับเรื่องเดิมเดิม",
+                                "ร้องไห้ทำไม",
+                                "รอยยิ้ม",
+                                "รักเธอตั้งแต่เมื่อไหร่",
+                                "รักเธอที่สุดในโลก",
+                                "รักเธอทุกวินาที (Every Minute)",
+                                "รักเปิดเผย",
+                                "รักแท้ไม่มีจริง",
+                                "รักแท้หรือแค่เหงา",
+                                "รักแท้อยู่เหนือกาลเวลา",
+                                "รักแบบไม่ต้องแอบรัก",
+                                "รื่นเริงเถลิงศก",
+                                "รู้",
+                                "รูปถ่ายที่หายไป",
+                                "ฤดูความรักผลิ",
+                                "ลงเอย",
+                                "ลบนาทีที่มีเธอ",
+                                "ลม หายใจเท่านั้นที่รู้",
+                                "ลม",
+                                "ลอง",
+                                "ลองคุย",
+                                "ละเลย",
+                                "ละไว้ในฐานที่เสียใจ",
+                                "ละอายใจ",
+                                "ลับหลังทำไม",
+                                "ลืม",
+                                "ลืมไปแล้ว",
+                                "ลูกอม",
+                                "วัน เดือน ปี",
+                                "วันเดียว",
+                                "วันนี้ฉันมีเธอ",
+                                "วันหนึ่งฉันเดินเข้าป่า",
+                                "ว้าวุ่น",
+                                "วิธีใช้",
+                                "วู่วาม",
+                                "ส่งเพลงนี้คืนมาให้ฉันที",
+                                "สบู่",
+                                "สภาวะทิ้งตัว",
+                                "สมการ",
+                                "สองใจ",
+                                "สองคนหนึ่งใจ",
+                                "สักวันหนึ่ง",
+                                "หน้าหนาวที่แล้ว",
+                                "หนี",
+                                "หนี2",
+                                "หนึ่งในพันล้าน",
+                                "หนึ่งคำที่ล้นใจ",
+                                "หนึ่งจากในล้าน",
+                                "หมอกร้าย",
+                                "หมั่นคอยดูแลและรักษาดวงใจ",
+                                "หมายความว่าอะไร",
+                                "หมึกนึ่งมะนาว",
+                                "หยุด",
+                                "หยุดเหงาไปด้วยกัน",
+                                "หยุดความคิดไม่ได้",
+                                "หยุดสงสาร",
+                                "หรือเพียงแค่เหงา",
+                                "หัวใจไม่พอเจ็บ",
+                                "ห่างช้าๆ",
+                                "หูแว่ว",
+                                "หูไม่ตรงกับตา",
+                                "หูทวนลม",
+                                "อกมีไว้หัก",
+                                "อย่า อยู่ อย่าง อยาก",
+                                "อย่าเบื่อ คำว่าเสียใจ",
+                                "อย่าเปลี่ยนไป",
+                                "อย่าเอาเขามาเกี่ยวเรื่องนี้",
+                                "อย่าเอาความเหงามาลงที่ฉัน",
+                                "อยากรู้",
+                                "อยากหยุดเวลา",
+                                "อย่างน้อย",
+                                "อ๊ะป่าว",
+                                "อังศุมาลิน",
+                                "อาการรัก",
+                                "อาจจะเป็นเธอ",
+                                "อาย",
+                                "อายเลิฟยู",
+                                "อ้าว",
+                                "พักก่อน",
+                                "วิบวับ",
+                                "How to Love",
+                                "ลาลาลอย",
+                                "บุพเพสันนิวาส"];
+                            /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+                            autocomplete(document.getElementById("sound"), countries);
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br><br>
+        <form enctype="multipart/form-data">
+            <input type="button" value="Go back!" onclick="history.back()">
+        </form>
+    </center>
+    <footer>
+        <p>THAI MUSIC CLASSIFICATION</p>
+    </footer>
+</body>
+
+</html>

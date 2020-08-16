@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="tesaQuiz2020">
+    <meta name="author" content="taati">
+
+    <title>Final Integration</title>
+    <style>
+        /* Set the size of the div element that contains the map */
+        
+        #map {
+            height: 600px;
+            /* The height is 400 pixels */
+            width: 100%;
+            /* The width is the width of the web page */
+        }
+        
+        div#layout {
+            text-align: center;
+        }
+        
+        div#container {
+            width: 1000px;
+            height: 600px;
+            margin: auto;
+            background-color: #2F4A6D;
+        }
+        
+        body {
+            background: skyblue;
+            font-family: verdana;
+            color: #fff;
+            padding: 30px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        
+        h2 {
+            font-size: 36px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        
+        p {
+            font-size: 16px;
+            text-align: center;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+</head>
+
+<body id="page-top">
+    <!-- Location -->
+    <section id="location">
+        <div>
+            <div>
+                <div>
+                    <h1>Location</h1>
+                    <h2>แสดงตำแหน่งแต่ทีมและตำแหน่งปัจจุบันและค่าฝุ่น PM 2.5</h2>
+                </div>
+            </div>
+
+            <div id="map"></div>
+        </div>
+    </section>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row align-items-center">
+                <center>
+                    <div class="col-md-6">
+                        <span class="copyright">Copyright &copy; CANET 2020</span>
+                    </div>
+                </center>
+            </div>
+        </div>
+    </footer>
+    <script>
+        //make data
+        //location 4 teams
+        let locaTeams = [
+            ["team18", 19.1563910, 99.9019080],
+            ["team03", 19.0112940, 99.8979260],
+            ["team36", 19.1671490, 99.8125710],
+            ["team21", 19.1671490, 99.8892600]
+        ];
+        let cenLa = 0;
+        let cenLo = 0;
+
+        let locaPm25 = [
+            [19.1663910, 99.9019080, "ศาลหลักเมืองพะเยา"], //44
+            [19.1771490, 99.8125710, "วัดอนาลโย"], //45
+            [19.1764770, 99.8892600, "วัดศรีโคมคำ"], //46
+            [19.0212940, 99.8979260, "มหาวิทยาลัยพะเยา"] //47
+        ]
+        for (let i = 0; i < locaTeams.length; i++) {
+            cenLa += locaTeams[i][1];
+            cenLo += locaTeams[i][2];
+        }
+
+        cenLa /= locaTeams.length;
+        cenLo /= locaTeams.length;
+
+        //pm 25
+        var pm25s = [0, 0, 0, 0];
+
+        function getPm44() {
+            fetch('http://localhost:3000/api')
+                .then(res => res.json())
+                .then((data) => {
+                    test = data.prediction;
+                    console.log(pm25)
+                }).catch(err => console.error(err));
+        }
+
+        function getPm45() {
+            fetch('http://202.139.192.128/api/pm25_data/45')
+                .then(res => res.json())
+                .then((data) => {
+                    let pm25 = data.PM25;
+                    pm25 = pm25.substring(2);
+                    pm25 = parseInt(pm25, 16);
+
+                    pm25s[1] = pm25;
+                }).catch(err => console.error(err));
+        }
+
+        function getPm46() {
+            fetch('http://202.139.192.128/api/pm25_data/46')
+                .then(res => res.json())
+                .then((data) => {
+                    let pm25 = data.PM25;
+                    pm25 = pm25.substring(2);
+                    pm25 = parseInt(pm25, 16);
+
+                    pm25s[2] = pm25;
+                }).catch(err => console.error(err));
+        }
+
+        function getPm47() {
+            fetch('http://202.139.192.128/api/pm25_data/47')
+                .then(res => res.json())
+                .then((data) => {
+                    let pm25 = data.PM25;
+                    pm25 = pm25.substring(2);
+                    pm25 = parseInt(pm25, 16);
+
+                    pm25s[3] = pm25;
+                }).catch(err => console.error(err));
+        }
+
+        //get data pm25 from server every 5 seconde
+        setInterval(function() {
+            getPm44();
+            getPm45();
+            getPm46();
+            getPm47();
+        }, 5000);
+        var tempnoti = 0;
+
+        function getTrackingElderly() {
+            fetch('http://202.139.192.128/api/track_data/03')
+                .then(res => res.json())
+                .then((data) => {
+                    let event_code = data.event_code;
+                    if (tempnoti != event_code) {
+                        if (event_code == 8) {
+                            alert("ผู้สวมใส่หมดสติ!!!");
+                        } else if (event_code == 128) {
+                            alert("ผู้สวมใส่ล้มแบบหมดสติ!!!");
+                        } else if (event_code == 255) {
+                            alert("ผู้สวมใส่สะดุดล้ม!!!");
+                        }
+                        tempnoti = event_code;
+                    }
+
+                }).catch(err => console.error(err));
+        }
+
+        //get data tracking elderly
+        setInterval(function() {
+            getTrackingElderly();
+        }, 5000);
+
+        function getTrackLocation() {
+            fetch('http://202.139.192.128/api/jan_data/80:E1:26:07:C8:7B')
+                .then(res => res.json())
+                .then((dataSet) => {
+
+                    let idTeam = ["18", "03", "36", "21"];
+                    let value = [0, 0, 0, 0]
+                    let valueTime = ['0', '0', '0', '0']
+                    let max = -89
+                    let maxTime = -1
+
+                    for (let i = 0; i < dataSet.length; i++) {
+                        index = idTeam.indexOf(dataSet[i]['sensor_id']);
+                        if (index != -1) {
+                            value[index] = dataSet[i]['rssi']
+                            valueTime[index] = dataSet[i]['ts']
+                        }
+                    }
+
+                    for (let i = 0; i < value.length; i++) {
+                        if (value[i] == 0 || valueTime[i] == 0) {
+                            value[i] = max;
+                        }
+                        if (value[i] != 0) {
+                            let day = new Date(valueTime[i]);
+                            if (day.getTime() > maxTime) {
+                                maxTime = day.getTime()
+                                    //console.log('i: '+i)
+                            }
+                        }
+                    }
+
+                    for (let i = 0; i < value.length; i++) {
+                        if (value[i] != 0) {
+                            let day = new Date(valueTime[i]);
+                            let diffTime = maxTime - day.getTime()
+                                //console.log(maxTime+' '+day.getTime()+' = ' +diffTime)
+                            if (diffTime > 20000) {
+                                //console.log('i: '+i)
+                                value[i] = max;
+                            }
+                        }
+                    }
+                    console.log(value);
+                    predict(value[0], value[1], value[2], value[3])
+                }).catch(err => console.error(err));
+        }
+
+        //get data tracking motion
+        setInterval(function() {
+            getTrackLocation();
+        }, 5000);
+
+
+        let CLASSES = ["team18", "team03", "team36", "team21"];
+
+        async function predict(rssi0, rssi1, rssi2, rssi3) {
+
+            let xv = tf.tensor([
+                [rssi0, rssi1, rssi2, rssi3]
+            ]); //18
+            /*
+            let xv = tf.tensor([
+                [-43, -75, -82, -78]
+            ]); //18*/
+
+            const model = await tf.loadLayersModel('/model/model.json');
+            const predictOut = model.predict(xv);
+            const logits = Array.from(predictOut.dataSync());
+            let index = predictOut.argMax(-1).dataSync()[0];
+            const winner = CLASSES[index];
+
+            console.log(locaTeams[index][0]);
+            Human(locaTeams[index][1], locaTeams[index][2]);
+        }
+
+        var hum = null;
+        var maps;
+        var position = {
+            lat: cenLa,
+            lng: cenLo
+        };
+
+        function Human(la, lo) {
+            if (hum != null) {
+                hum.setMap(null);
+            }
+            marker = new google.maps.Marker({
+                position: new google.maps.LatLng(la, lo + 0.001),
+                map: maps,
+                icon: '/logo/human.png'
+            });
+            let info = new google.maps.InfoWindow();
+            let mapLandPm = {
+                "ศาลหลักเมืองพะเยา": "team18",
+                "วัดอนาลโย": "team36",
+                "วัดศรีโคมคำ": "team21",
+                "มหาวิทยาลัยพะเยา": "team03"
+            }
+            google.maps.event.addListener(marker, 'click', (function(marker) { //Callback function
+                return function() {
+                    let st = true;
+                    for (let i = 0; i < locaPm25.length; i++) {
+                        let dla = locaPm25[i][0] - la;
+                        let dlo = locaPm25[i][1] - lo;
+                        let uc = Math.sqrt(dla * dla + dlo * dlo);
+                        pm = pm25s[i]
+                        var c = "#FFFFFF"
+                        var d = "ดีมาก"
+                        if (pm < 25.5) {
+                            c = "#3bccff"
+                            d = "คุณภาพอากาศดีมาก"
+                        } else if (pm < 37.5) {
+                            c = "#92d050"
+                            d = "คุณภาพอากาศดี"
+                        } else if (pm < 50.5) {
+                            c = "#ffff00"
+                            d = "ปานกลาง"
+                        } else if (pm < 90.5) {
+                            c = "#ffa200"
+                            d = "เริ่มมีผลกระทบต่อสุขภาพ"
+                        } else {
+                            c = "#ff3b3b"
+                            d = "มีผลกระทบต่อสุขภาพ"
+                        }
+                        if (uc < 0.09) {
+                            let p = "team03";
+                            for (let k = 0; k < locaTeams.length; k++) {
+                                if (la == locaTeams[k][1] && lo == locaTeams[k][2]) {
+                                    p = locaTeams[k][0];
+                                }
+                            }
+                            info.setContent("คุณอยู่ที่" + p + " (" + d + ")");
+                            info.open(maps, marker);
+                            st = false;
+                            break
+                        }
+                    }
+                    if (st) {
+                        info.setContent("คุณอยู่ที่นี่!!!");
+                    }
+                }
+            })(marker));
+
+            hum = marker;
+        }
+
+        function initMap() {
+            maps = new google.maps.Map(document.getElementById('map'), {
+                center: position,
+                zoom: 11.5
+            });
+            var marker;
+            for (let i = 0; i < locaTeams.length; i++) {
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(locaTeams[i][1], locaTeams[i][2]),
+                    map: maps,
+                    icon: '/logo/loca.png'
+                });
+                let info = new google.maps.InfoWindow();
+
+                google.maps.event.addListener(marker, 'click', (function(marker) { //Callback function
+                    return function() {
+                        pm = pm25s[i]
+                        var c = "#FFFFFF"
+                        var d = "ดีมาก"
+                        if (pm < 25.5) {
+                            c = "#3bccff"
+                            d = "คุณภาพอากาศดีมาก"
+                        } else if (pm < 37.5) {
+                            c = "#92d050"
+                            d = "คุณภาพอากาศดี"
+                        } else if (pm < 50.5) {
+                            c = "#ffff00"
+                            d = "ปานกลาง"
+                        } else if (pm < 90.5) {
+                            c = "#ffa200"
+                            d = "เริ่มมีผลกระทบต่อสุขภาพ"
+                        } else {
+                            c = "#ff3b3b"
+                            d = "มีผลกระทบต่อสุขภาพ"
+                        }
+                        contentString = '<div id="content">' +
+                            '<div id="siteNotice">' +
+                            '</div>' +
+                            '<h1 id="firstHeading" class="firstHeading">' + locaTeams[i][0] + '</h1>' +
+                            '</div>';
+                        info.setContent(contentString);
+                        info.open(maps, marker);
+                    }
+                })(marker));
+            }
+
+            Human(19.0112940, 99.8986260); //start
+            pmplot25();
+        }
+
+        function animatedMove(marker, n, current, lat, long) {
+            var lat = current.lat();
+            var lng = current.lng();
+
+            var deltalat = (lat - current.lat()) / 100;
+            var deltalng = (long - current.lng()) / 100;
+
+            for (var i = 0; i < 100; i++) {
+                (function(ind) {
+                    setTimeout(
+                        function() {
+                            var lat = marker.position.lat();
+                            var lng = marker.position.lng();
+
+                            lat += deltalat;
+                            lng += deltalng;
+                            latlng = new google.maps.LatLng(lat, lng);
+                            marker.setPosition(latlng);
+                        }, 10 * ind
+                    );
+                })(i)
+            }
+        }
+
+        function pmplot25() {
+            for (let i = 0; i < locaPm25.length; i++) {
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(locaPm25[i][0], locaPm25[i][1]),
+                    map: maps,
+                    icon: '/logo/dust.png'
+                });
+                let info = new google.maps.InfoWindow();
+                google.maps.event.addListener(marker, 'click', (function(marker) { //Callback function
+                    return function() {
+                        pm = pm25s[i]
+                        console.log(pm);
+                        var c = "#FFFFFF"
+                        var d = "ดีมาก"
+                        if (pm < 25.5) {
+                            c = "#3bccff"
+                            d = "คุณภาพอากาศดีมาก"
+                        } else if (pm < 37.5) {
+                            c = "#92d050"
+                            d = "คุณภาพอากาศดี"
+                        } else if (pm < 50.5) {
+                            c = "#ffff00"
+                            d = "ปานกลาง"
+                        } else if (pm < 90.5) {
+                            c = "#ffa200"
+                            d = "เริ่มมีผลกระทบต่อสุขภาพ"
+                        } else {
+                            c = "#ff3b3b"
+                            d = "มีผลกระทบต่อสุขภาพ"
+                        }
+                        contentString = '<div id="content">' +
+                            '<div id="siteNotice">' +
+                            '</div>' +
+                            '<h1 id="firstHeading" class="firstHeading">' + locaPm25[i][2] + '</h1>' +
+                            '<div id="bodyContent">' +
+                            '<strong> <p style="color:' + c + '" ><b>PM 2.5 : ' + pm + ' ไมโครกรัมต่อลูกบาศก์เมตร</b></p><br><strong>' +
+                            '<p>' + d + '</p>' +
+                            '<br>' +
+                            '<p>อ้างอิงเกณฑ์การวัด , <a href="http://air4thai.pcd.go.th/webV2/aqi_info.php">' +
+                            'http://air4thai.pcd.go.th/webV2/aqi_info.php</a> ' +
+                            '(last visited January 10, 2020).</p>' +
+                            '</div>' +
+                            '</div>';
+                        info.setContent(contentString);
+                        info.open(maps, marker);
+                    }
+                })(marker));
+            }
+        }
+
+        function plotmap() {
+            var pm = [
+                [120, 19.0279117, 99.9002089]
+            ]
+
+            var position = {
+                lat: parseFloat(pm[0][1]),
+                lng: parseFloat(pm[0][2])
+            };
+
+
+            var jsonObj = []
+
+            for (var i = 0; i < pm.length; i++) {
+                jsonObj = jsonObj.concat({
+                    "pm": pm[i][0],
+                    "lat": pm[i][1],
+                    "lng": pm[i][2]
+                })
+            }
+
+            function pinSymbol(color) {
+                return {
+                    path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0',
+                    fillColor: color,
+                    fillOpacity: 1,
+                    strokeColor: '#FFFFFF',
+                    strokeWeight: 1,
+                    scale: 1,
+                };
+            }
+
+            maps = new google.maps.Map(document.getElementById('map'), {
+                center: position,
+                zoom: 11.5,
+
+            });
+
+            var marker, info;
+            $.each(jsonObj, function(i, item) {
+                pm = parseFloat(item.pm)
+                var c = "#FFFFFF"
+                var d = "ดีมาก"
+                if (pm < 25.5) {
+                    c = "#3bccff"
+                    d = "คุณภาพอากาศดีมาก"
+                } else if (pm < 37.5) {
+                    c = "#92d050"
+                    d = "คุณภาพอากาศดี"
+                } else if (pm < 50.5) {
+                    c = "#ffff00"
+                    d = "ปานกลาง"
+                } else if (pm < 90.5) {
+                    c = "#ffa200"
+                    d = "เริ่มมีผลกระทบต่อสุขภาพ"
+                } else {
+                    c = "#ff3b3b"
+                    d = "มีผลกระทบต่อสุขภาพ"
+                }
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(item.lat, item.lng),
+                    map: maps,
+                    icon: pinSymbol(c),
+                });
+
+                info = new google.maps.InfoWindow();
+                google.maps.event.addListener(marker, 'click', (function(marker, i) { //Callback function
+                    return function() {
+                        info.setContent(d + "(" + item.pm + ")");
+                        info.open(maps, marker);
+                    }
+                })(marker, i));
+
+                info.setContent(d + "(" + item.pm + ")");
+                info.open(maps, marker);
+
+            });
+        }
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-bBa8tQQD2jONs-so1NcDvx2g_UTP-ic&callback=initMap" async defer></script>
+
+</body>
+
+</html>

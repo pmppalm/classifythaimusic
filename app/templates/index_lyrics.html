@@ -1,0 +1,130 @@
+<html>
+
+<head>
+    <title>THAI MUSIC Classification</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/login.css}" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+</head>
+<style>
+    header {
+        background-color: #3A8386;
+        width: 100%;
+        height: 200px;
+        padding: 80px;
+        text-align: center;
+        font-size: 100px;
+        color: #3A8386;
+    }
+
+    fonthead {
+        font-family: "THSarabunNew";
+        color: white;
+        font-size: 50px;
+    }
+
+    font {
+        font-family: "THSarabunNew";
+        color: #045243;
+    }
+
+    footer {
+        padding: 15px;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #777;
+        color: white;
+        text-align: center;
+        font-family: "THSarabunNew";
+    }
+
+    input[type=text],
+    select {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    input[type=submit] {
+        width: 100%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    #borderDemo {
+        border: px solid #000000;
+        background-color: #EBEBEB;
+        width: 500px;
+        height: 400px;
+        padding: 50px;
+        display: inline-block;
+        font-family: "THSarabunNew";
+
+    }
+</style>
+
+<body style="background-color:white;">
+    <header>
+        <h1><b>
+                <fonthead>ตัวจำแนกเพลงไทย</fonthead>
+            </b></h1>
+    </header><br>
+    <center>
+        <h2>
+            <font><b>จำแนกคุณลักษณะอารมณ์จากเนื้อเพลง</b></font>
+        </h2>
+        <br>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div id="borderDemo">
+                        <h1><b>L y r i c s</b></h1>
+                        <form action="/poem" method="POST" enctype="multipart/form-data">
+                            <br>
+                            <h2>ทดสอบอารมณ์จากเนื้อเพลง</h2>
+                            <div class="custom-file mb-3">
+                                <input type="file" name="file" accept=".txt" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                            <h3>(รองรับไฟล์นามสกุล .txt เท่านั้น)</h3><br>
+                            <input type="submit" value="วิเคราะห์" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br><br>
+        <form enctype="multipart/form-data">
+            <input type="button" value="Go back!" onclick="history.back()">
+        </form>
+    </center>
+    <footer>
+        <p>THAI MUSIC CLASSIFICATION</p>
+    </footer>
+    <script>
+        // Add the following code if you want the name of the file appear on select
+        $(".custom-file-input").on("change", function () {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>
+</body>
+
+</html>
